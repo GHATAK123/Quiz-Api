@@ -1,11 +1,14 @@
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
+require('./bin/models/quiz')
+require('./bin/models/question')
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
+var mongoose=require('mongoose');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var bodyParser=require('body-parser');
 
 var app = express();
 
@@ -18,6 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.json());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
@@ -25,6 +29,16 @@ app.use('/users', usersRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
+});
+// Database connection
+const url = 'mongodb+srv://root:toor@pizza.uja22.mongodb.net/pizza?retryWrites=true&w=majority';
+mongoose.connect(url,{ useNewUrlParser:true,useCreateIndex:true,useUnifiedTopology:true,useFindAndModify:true
+});
+const connection = mongoose.connection;
+connection.once('open',()=>{
+  console.log('Database connected...');
+}).catch(err => {
+  console.log('Connection failed...');
 });
 
 // error handler
